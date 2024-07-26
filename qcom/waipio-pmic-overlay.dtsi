@@ -10,8 +10,12 @@
 #include "pm8450.dtsi"
 
 &pmk8350 {
-	/delete-node/ pon_pbs@800;
 	/delete-node/ pon_hlos@1300;
+
+	pon_pmicwd@800 {
+		compatible = "oplus,pmicwd_qpnp-power-on";
+		qcom,pmicwd;
+	};
 
 	pon_hlos@1300 {
 		compatible = "qcom,pm8998-pon";

@@ -16,7 +16,7 @@
 / {
 	model = "Qualcomm Technologies, Inc. Parrot";
 	compatible = "qcom,parrot";
-	qcom,msm-id = <537 0x10000>, <613 0x10000>;
+	qcom,msm-id = <537 0x10000>;
 	interrupt-parent = <&intc>;
 
 	#address-cells = <2>;
@@ -24,7 +24,7 @@
 
 	chosen: chosen {
 		stdout-path = "/soc/qcom,qup_uart@98c000:115200n8";
-		bootargs = "console=ttyMSM0,115200n8 loglevel=6 log_buf_len=256K kernel.panic_on_rcu_stall=1 loop.max_part=7 pcie_ports=compat msm_rtb.filter=0x237 allow_mismatched_32bit_el0 kasan=off rcupdate.rcu_expedited=1 rcu_nocbs=0-7 ftrace_dump_on_oops pstore.compress=none kpti=0 swiotlb=noforce cgroup.memory=nokmem,nosocket kswapd_per_node=2 slub_debug=- allow_file_spec_access cpufreq.default_governor=performance transparent_hugepage=never page_poison=on can.stats_timer=0 disable_dma32=on android12_only.will_be_removed_soon.memblock_nomap_remove=on";
+		bootargs = "console=ttyMSM0,115200n8 loglevel=6 log_buf_len=256K kernel.panic_on_rcu_stall=1 loop.max_part=7 pcie_ports=compat msm_rtb.filter=0x237 allow_mismatched_32bit_el0 kasan=off rcupdate.rcu_expedited=1 rcu_nocbs=0-7 ftrace_dump_on_oops pstore.compress=none kpti=0 swiotlb=noforce cgroup.memory=nokmem,nosocket kswapd_per_node=1 slub_debug=- allow_file_spec_access cpufreq.default_governor=performance transparent_hugepage=never page_poison=on can.stats_timer=0 disable_dma32=on android12_only.will_be_removed_soon.memblock_nomap_remove=on";
 	};
 
 	memory { device_type = "memory"; reg = <0 0 0 0>; };
@@ -33,6 +33,7 @@
 
 	reserved_memory: reserved-memory { };
 
+/*
 	mem-offline {
 		compatible = "qcom,mem-offline";
 		offline-sizes = <0x1 0x40000000 0x0 0x40000000>,
@@ -41,6 +42,7 @@
 		granule = <512>;
 		mboxes = <&qmp_aop 0>;
 	};
+*/
 
 	aliases: aliases {
 		mmc0 = &sdhc_1; /*SDC1 eMMC slot*/
@@ -1469,9 +1471,6 @@
 		mmc-hs400-1_8v;
 		mmc-hs400-enhanced-strobe;
 
-		qcom,devfreq,freq-table = <50000000 200000000>;
-		qcom,scaling-lower-bus-speed-mode = "DDR52";
-
 		cap-mmc-hw-reset;
 
 		clocks = <&gcc GCC_SDCC1_AHB_CLK>,
@@ -1493,8 +1492,8 @@
 		dma-coherent;
 		qcom,iommu-dma = "fastmap";
 
-		qcom,iommu-dma-addr-pool = <0x40000000 0x10000000>;
-		qcom,iommu-geometry = <0x40000000 0x10000000>;
+		qcom,iommu-dma-addr-pool = <0x40000000 0x40000000>;
+		qcom,iommu-geometry = <0x40000000 0x40000000>;
 
 		interconnects = <&aggre1_noc MASTER_SDCC_1 &mc_virt SLAVE_EBI1>,
 			      <&gem_noc MASTER_APPSS_PROC &cnoc2 SLAVE_SDC1>;
@@ -1556,8 +1555,8 @@
 		dma-coherent;
 		qcom,iommu-dma = "fastmap";
 
-		qcom,iommu-dma-addr-pool = <0x40000000 0x10000000>;
-		qcom,iommu-geometry = <0x40000000 0x10000000>;
+		qcom,iommu-dma-addr-pool = <0x40000000 0x40000000>;
+		qcom,iommu-geometry = <0x40000000 0x40000000>;
 
 		interconnects = <&aggre2_noc MASTER_SDCC_2 &mc_virt SLAVE_EBI1>,
 			      <&gem_noc MASTER_APPSS_PROC &cnoc2 SLAVE_SDCC_2>;
@@ -1814,7 +1813,6 @@
 		qcom,hyplog-enabled;
 		hyplog-address-offset = <0x410>;
 		hyplog-size-offset = <0x414>;
-		tmecrashdump-address-offset = <0x808a0000>;
 		status = "ok";
 	};
 
@@ -2017,8 +2015,8 @@
 		qcom,iommu-dma = "fastmap";
 		dma-coherent;
 
-		qcom,iommu-dma-addr-pool = <0x40000000 0x10000000>;
-		qcom,iommu-geometry = <0x40000000 0x10000000>;
+		qcom,iommu-dma-addr-pool = <0x40000000 0x40000000>;
+		qcom,iommu-geometry = <0x40000000 0x40000000>;
 
 		status = "disabled";
 
@@ -2067,6 +2065,9 @@
 		compatible = "qcom,guestvm-loader";
 		qcom,pas-id = <28>;
 		qcom,vmid = <45>;
+		qcom,isolate-cpus;
+		qcom,reserved-cpus = <0x5>, <0x6>;
+		qcom,unisolate-timeout-ms = <12000>;
 		qcom,firmware-name = "trustedvm";
 		memory-region = <&trust_ui_vm_mem>;
 	};
@@ -2824,8 +2825,6 @@
 
 	hyp_core_ctl: qcom,hyp-core-ctl {
 		compatible = "qcom,hyp-core-ctl";
-		qcom,populate-cpus;
-		qcom,unisolate-timeout-ms = <12000>;
 		status = "ok";
 	};
 	qcom,msm_gsi {
@@ -2881,7 +2880,6 @@
 		qcom,tx-poll;
 		qcom,wan-use-skb-page;
 		qcom,rmnet-ctl-enable;
-		qcom,gfp-no-retry;
 		qcom,ipa-holb-monitor-poll-period = <5>;
 		qcom,ipa-holb-monitor-max-cnt-wlan = <10>;
 		qcom,ipa-holb-monitor-max-cnt-usb = <10>;
