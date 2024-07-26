@@ -77,6 +77,10 @@ endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 dtbo-$(CONFIG_ARCH_WAIPIO) += waipio-rumi-overlay.dtbo \
+	waipio-mtp-pm8008-overlay.dtbo \
+	waipio-cdp-pm8008-overlay.dtbo \
+	waipio-qrd-pm8008-overlay.dtbo \
+	waipio-atp-pm8008-overlay.dtbo \
 	waipio-mtp-pm8010-overlay.dtbo \
 	waipio-cdp-pm8010-overlay.dtbo \
 	waipio-qrd-pm8010-overlay.dtbo \
@@ -686,4 +690,5 @@ endif
 
 always-y	:= $(dtb-y)
 subdir-y	:= $(dts-dirs)
+subdir-y	+= audio camera cvp display eva mmrm video
 clean-files	:= *.dtb *.dtbo
